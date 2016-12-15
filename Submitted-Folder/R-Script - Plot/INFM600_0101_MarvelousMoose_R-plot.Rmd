@@ -1,0 +1,74 @@
+---
+title: "INFM600 R-Plot"
+output:
+  word_document: default
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+##R Markdown 
+
+```{r reading aircrash data sets}
+setwd("E:\\Fall_2016\\INFM_600\\Project\\R-plot")
+d=read.csv("Airplane_Crash_Summary_Final.csv")
+AirCrashTimeSlots=read.csv("AirCrashTimeSlots.csv")
+crash=read.csv("top_5_crash.csv")
+```
+
+```{r RQ1: Which Operators cause the maximum number of air crashes? }
+library(ggplot2)
+library(extrafont)
+library(xkcd)
+font_import(pattern="[C/c]omic")
+fonts()
+loadfonts(device="win")
+theme_xkcd <- theme(
+    panel.background = element_rect(fill="whitesmoke"),
+    panel.grid = element_line(colour="white"),
+    axis.text.x = element_text(colour="black"),
+     text = element_text(size=10, family="Comic Sans MS")
+)
+Legend<-crash$Operator
+ggplot(crash, aes(x=crash$Operator, y=crash$freq, fill=Legend))+stat_summary(geom="bar") +
+     labs(y = "Number of air crashes") + labs(title = "Bar Graph: Number of air crashes since 1908 for top 5 operators with maximum number of crashes") +scale_x_discrete("Operators", waiver(), NULL)+
+    theme_xkcd
+```
+##This graph shows the total number of air crashes for the top 5 operators with maximum number of aircrashes since 1908.As we can see from this graph Aeroflot has the maximum number of aircrashes (around 180), which is huge compared to other airlines. We also found out that these airlines started opearting around the same time i.e. early 1920's. Further analysis will be required to help us answer the question what are the factors for such a high crash rate for Aeroloft.One important thing to note here is that we have excluded Military crashes for this analysis. 
+
+```{r Crashes per year for top 5 operators with maximum number of crashes.}
+
+ggplot(crash, aes(x=Operator, y=crashperyr,fill=Operator)) + 
+     geom_bar(stat="identity") 
+
+```
+##We decided to look into details regarding how many crashes happen per year for each of the top five operators. For this, we found out the year each operator began operating, and divided the total number of crashes for each by the number of years the operator has been active up till 2008. We found out that even though all of these airlines have started around the same time, a couple of them have significantly higher crash rate value per year as compared to others.For instace, Aeroflot has a value of almost 2 air crashes per year up to 2008 from the time it started operating. Further analysis can be done using these details to find out the exact reasons that are responsible for such a high crash rate for these airlines. 
+	 
+```{r Time of air crashes}
+qplot(Reason, newTime, data=AirCrashTimeSlots, geom=c("boxplot"),fill=Reason, main="Times of Air crash by Reason",
+     xlab="", ylab="Time of Air Crash(24 hr. format)",ylim = c(0,24))
+
+```
+##This is a box plot. The boxes represent the 1st quartile, median,3rd quartile and the minimum and maximum values for each Reason.The solid black line represents the median time of crash for each reason.This As can be seen from the box plots, the timings for the air-crash are least spread for Bombed/Hijacked, Shot Down and maximum forPilot error.We can make use of this graph to identify the time of crahes for each type of reason and then analyze them further to support the trends observed.
+
+```{r AirCrashTimeSlots: Do more air crash accidents happen during day or night?}
+Legend=AirCrashTimeSlots$slot
+barplot(table(AirCrashTimeSlots$slot),main="Day v/s Night crashes",xlab="Time of the day",ylab="Number of Crashes",col=c("yellow","black"),ylim = c(0,2000))
+legend("topright", 
+       legend = c("Day", "Night"), 
+       fill = c("yellow", "black"))
+```
+##The above plot shows us the number of crashes that have happened during the day time versus the number of crashes that have occured during the night time. The graph reveals that more crashes have taken place during the day time as compared to the night.
+
+```{r d}
+catcolors=c("red","purple","brown","blue","violet","orange","black")
+barplot(table(d$Reason),main="Reason for Crash",xlab="Reason",ylab="Number of Crashes",col=catcolors,ylim = c(0,2100))
+legend("top",c("Bad Weather","Bombed/Hijacked","Collision","Pilot Error","Shot Down","Technical Failure","Unknown"),lwd=8,col=catcolors)
+```
+##The above plot shows details regarding the number of crashes that have happened due to the various reasons we have assigned. Reason of the crash was assigned to each crash after examining the explanation given in the crash summary. As seen from the graph, a majority of air crashes have taken place due to technical failure, followed by bad weather conditions. It is interesting to note that more than 350 air crashes have happened as a result of pilot/crew errors.
+
+
+
